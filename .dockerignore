@@ -1,0 +1,5 @@
+vendor
+.git
+tests
+.phpunit.cache
+demo
