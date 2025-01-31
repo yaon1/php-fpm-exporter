@@ -1,31 +1,26 @@
 # php-fpm-exporter
 
-Prometheus exporter for **PHP-FPM** pools and **OPcache**, with a ready-made Grafana dashboard.
+**Prometheus-экспортер для PHP-FPM и OPcache с готовым дашбордом Grafana.** Помогает ответить на вопросы, которые обычно всплывают уже во время инцидента: хватает ли воркеров (`max_children reached`), растёт ли очередь запросов, какой запрос висит дольше всех, не переполнен ли OPcache и не перезапускается ли он по OOM.
 
-- Multiple pools per exporter, each with its own `pool` label
-- Worker state breakdown, longest running request, peak request memory
-- OPcache memory, hit/miss counters, restarts by reason, interned strings
-- Zero runtime dependencies, ~20 MB image, `linux/amd64` + `linux/arm64`
+- Несколько пулов в одном экспортере, у каждого свой label `pool`.
+- Воркеры по состояниям, самый долгий текущий запрос, пиковая память запроса.
+- OPcache: память, hit/miss, перезапуски по причинам, interned strings.
+- Нет зависимостей во время выполнения, образ ~20 МБ, `amd64` и `arm64`.
 
-## Quick start
+## Пример: весь стек за одну команду
 
 ```bash
 cd demo && docker compose up -d
 ```
 
-| URL | What |
+| URL | Что там |
 |---|---|
-| http://localhost:8088 | Demo PHP app |
-| http://localhost:9253/metrics | Exporter |
+| http://localhost:8088 | Демо-приложение на PHP |
+| http://localhost:9253/metrics | Метрики экспортера |
 | http://localhost:9090 | Prometheus |
-| http://localhost:3000/d/php-fpm-exporter | Grafana dashboard |
+| http://localhost:3000/d/php-fpm-exporter | Дашборд Grafana |
 
-## Setup
-
-1. Enable the status page in your pool config: `pm.status_path = /status`
-2. *(Optional, for OPcache)* copy [`agent/opcache-status.php`](agent/opcache-status.php) into a docroot served by the pool. OPcache lives inside FPM workers, so it has to be read from there.
-3. Expose both through your web server to the exporter only (see [`demo/nginx.conf`](demo/nginx.conf)).
-4. Run the exporter:
+Подключение к своему проекту:
 
 ```bash
 docker run -p 9253:9253 \
@@ -34,17 +29,30 @@ docker run -p 9253:9253 \
   ghcr.io/yaon1/php-fpm-exporter
 ```
 
-## Configuration
+Примеры алертов:
 
-| Variable | Default | Description |
+```yaml
+- alert: PhpFpmMaxChildrenReached
+  expr: increase(phpfpm_max_children_reached_total[10m]) > 0
+- alert: OpcacheFull
+  expr: opcache_cache_full == 1
+```
+
+## Настройка
+
+1. Включите страницу статуса в конфиге пула: `pm.status_path = /status`.
+2. *(Для OPcache)* положите [`agent/opcache-status.php`](agent/opcache-status.php) в docroot пула. OPcache живёт внутри воркеров FPM, поэтому читать его нужно оттуда.
+3. Откройте оба адреса только для экспортера (см. [`demo/nginx.conf`](demo/nginx.conf)).
+
+| Переменная | По умолчанию | |
 |---|---|---|
-| `FPM_STATUS_URLS` | — | Comma-separated `label=url` pairs; a bare URL is labelled `default` |
-| `OPCACHE_STATUS_URLS` | — | Same format, pointing at `opcache-status.php` |
-| `SCRAPE_TIMEOUT` | `2` | Per-request timeout in seconds |
+| `FPM_STATUS_URLS` | — | Пары `label=url` через запятую; адрес без метки получает `default` |
+| `OPCACHE_STATUS_URLS` | — | Тот же формат, адреса `opcache-status.php` |
+| `SCRAPE_TIMEOUT` | `2` | Таймаут одного запроса, секунды |
 
-## Metrics
+## Метрики
 
-| Metric | Type | Labels |
+| Метрика | Тип | Labels |
 |---|---|---|
 | `phpfpm_up` | gauge | pool |
 | `phpfpm_{idle,active,total,max_active}_processes` | gauge | pool |
@@ -58,21 +66,12 @@ docker run -p 9253:9253 \
 | `opcache_restarts_total` | counter | pool, reason (oom/hash/manual) |
 | `opcache_interned_strings_{used,buffer}_bytes` | gauge | pool |
 
-### Example alerts
-
-```yaml
-- alert: PhpFpmMaxChildrenReached
-  expr: increase(phpfpm_max_children_reached_total[10m]) > 0
-- alert: OpcacheFull
-  expr: opcache_cache_full == 1
-```
-
-## Development
+## Разработка
 
 ```bash
 composer install && composer test && composer analyse
 ```
 
-## License
+## Лицензия
 
 MIT
