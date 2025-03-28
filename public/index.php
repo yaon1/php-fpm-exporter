@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Yaon\FpmExporter\Config;
 use Yaon\FpmExporter\FpmCollector;
-use Yaon\FpmExporter\HttpFetcher;
+use Yaon\FpmExporter\SchemeFetcher;
 use Yaon\FpmExporter\Metric;
 use Yaon\FpmExporter\OpcacheCollector;
 use Yaon\FpmExporter\TextFormatter;
@@ -29,7 +29,7 @@ if ($path !== '/metrics') {
 /** @var array<string, string> $env */
 $env = array_filter(getenv(), 'is_string');
 $config = Config::fromEnv($env);
-$fetcher = new HttpFetcher($config->timeout);
+$fetcher = SchemeFetcher::create($config->timeout);
 $started = hrtime(true);
 
 $metrics = [
