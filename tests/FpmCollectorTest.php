@@ -66,4 +66,12 @@ final class FpmCollectorTest extends TestCase
 
         self::assertSame(['phpfpm_up{"pool":"api"}' => 0], $metrics);
     }
+
+    public function testExposesProcessManagerInfo(): void
+    {
+        $json = (string) file_get_contents(__DIR__ . "/fixtures/fpm-status.json");
+        $metrics = $this->index((new FpmCollector($this->fetcher(["http://fpm/status?json&full" => $json]), ["www" => "http://fpm/status"]))->collect());
+
+        self::assertSame(1, $metrics["phpfpm_info{\"pool\":\"www\",\"process_manager\":\"dynamic\"}"]);
+    }
 }

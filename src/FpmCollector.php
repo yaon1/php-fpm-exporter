@@ -42,6 +42,8 @@ final readonly class FpmCollector
 
             $labels = ['pool' => $name];
             yield new Metric('phpfpm_up', 'gauge', 'Whether the FPM status page could be scraped', 1, $labels);
+            $manager = is_string($status['process manager'] ?? null) ? $status['process manager'] : 'unknown';
+            yield new Metric('phpfpm_info', 'gauge', 'Pool information, always 1', 1, $labels + ['process_manager' => $manager]);
             foreach (self::GAUGES as $key => [$metric, $help]) {
                 yield new Metric("phpfpm_$metric", 'gauge', $help, Json::number($status, $key), $labels);
             }
