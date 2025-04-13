@@ -17,10 +17,10 @@ services:
   exporter:
     build: ..
     environment:
-      FPM_STATUS_URLS: www=http://nginx/status
-      OPCACHE_STATUS_URLS: www=http://nginx/opcache-status.php
+      FPM_STATUS_URLS: www=tcp://app:9000/status
+      OPCACHE_STATUS_URLS: www=tcp://app:9000/var/www/html/opcache-status.php
     ports: ['9253:9253']
-    depends_on: [nginx]
+    depends_on: [app]
 
   prometheus:
     image: prom/prometheus:v2.55.1
