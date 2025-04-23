@@ -82,4 +82,12 @@ final class FpmCollectorTest extends TestCase
 
         self::assertSame(1760000000, $metrics["phpfpm_start_time_seconds{\"pool\":\"www\"}"]);
     }
+
+    public function testExposesPeakCpu(): void
+    {
+        $json = (string) file_get_contents(__DIR__ . "/fixtures/fpm-status.json");
+        $metrics = $this->index((new FpmCollector($this->fetcher(["http://fpm/status?json&full" => $json]), ["www" => "http://fpm/status"]))->collect());
+
+        self::assertSame(0.875, $metrics["phpfpm_process_max_last_request_cpu_ratio{\"pool\":\"www\"}"]);
+    }
 }

@@ -65,6 +65,7 @@ final readonly class FpmCollector
         $states = [];
         $maxDuration = 0;
         $maxMemory = 0;
+        $maxCpu = 0;
         foreach ($processes as $p) {
             if (!is_array($p)) {
                 continue;
@@ -73,12 +74,14 @@ final readonly class FpmCollector
             $states[$state] = ($states[$state] ?? 0) + 1;
             $maxDuration = max($maxDuration, Json::number($p, 'request duration'));
             $maxMemory = max($maxMemory, Json::number($p, 'last request memory'));
+            $maxCpu = max($maxCpu, Json::number($p, 'last request cpu'));
         }
 
         foreach ($states as $state => $count) {
             yield new Metric('phpfpm_process_state', 'gauge', 'Worker processes by state', $count, $labels + ['state' => (string) $state]);
         }
         yield new Metric('phpfpm_process_max_request_duration_seconds', 'gauge', 'Longest current/last request duration across workers', $maxDuration / 1_000_000, $labels);
+        yield new Metric('phpfpm_process_max_last_request_cpu_ratio', 'gauge', 'Highest CPU usage of the last request across workers (1 = one core)', $maxCpu / 100, $labels);
         yield new Metric('phpfpm_process_max_request_memory_bytes', 'gauge', 'Peak memory of the last request across workers', $maxMemory, $labels);
     }
 }
