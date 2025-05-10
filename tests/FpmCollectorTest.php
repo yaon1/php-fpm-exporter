@@ -94,4 +94,14 @@ final class FpmCollectorTest extends TestCase
 
         self::assertSame(0.875, $metrics["phpfpm_process_max_last_request_cpu_ratio{\"pool\":\"www\"}"]);
     }
+
+    public function testLogsScrapeErrors(): void
+    {
+        $log = [];
+        iterator_to_array((new FpmCollector($this->fetcher([]), ['api' => 'http://api/status'], function (string $m) use (&$log): void {
+            $log[] = $m;
+        }))->collect());
+
+        self::assertSame(['pool api: down'], $log);
+    }
 }

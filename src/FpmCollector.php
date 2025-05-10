@@ -24,8 +24,11 @@ final readonly class FpmCollector
         'slow requests' => ['slow_requests_total', 'Requests exceeding request_slowlog_timeout'],
     ];
 
-    /** @param array<string, string> $pools pool label => status URL */
-    public function __construct(private Fetcher $fetcher, private array $pools)
+    /**
+     * @param array<string, string> $pools pool label => status URL
+     * @param (\Closure(string): void)|null $log receives scrape errors, e.g. for stderr
+     */
+    public function __construct(private Fetcher $fetcher, private array $pools, private ?\Closure $log = null)
     {
     }
 
@@ -35,7 +38,8 @@ final readonly class FpmCollector
         foreach ($this->pools as $name => $url) {
             try {
                 $status = Json::object($this->fetcher->fetch($url . (str_contains($url, '?') ? '&' : '?') . 'json&full'));
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                $this->log !== null && ($this->log)(sprintf('pool %s: %s', $name, $e->getMessage()));
                 yield new Metric('phpfpm_up', 'gauge', 'Whether the FPM status page could be scraped', 0, ['pool' => $name]);
                 continue;
             }
