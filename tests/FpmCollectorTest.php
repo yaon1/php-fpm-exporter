@@ -46,10 +46,17 @@ final class FpmCollectorTest extends TestCase
         return $out;
     }
 
-    public function testMapsPoolStatus(): void
+    /** @return array<string, float|int> */
+    private function fixtureMetrics(): array
     {
         $json = (string) file_get_contents(__DIR__ . '/fixtures/fpm-status.json');
-        $metrics = $this->index((new FpmCollector($this->fetcher(['http://fpm/status?json&full' => $json]), ['www' => 'http://fpm/status']))->collect());
+
+        return $this->index((new FpmCollector($this->fetcher(['http://fpm/status?json&full' => $json]), ['www' => 'http://fpm/status']))->collect());
+    }
+
+    public function testMapsPoolStatus(): void
+    {
+        $metrics = $this->fixtureMetrics();
 
         self::assertSame(1, $metrics['phpfpm_up{"pool":"www"}']);
         self::assertSame(1234, $metrics['phpfpm_accepted_connections_total{"pool":"www"}']);
@@ -69,24 +76,21 @@ final class FpmCollectorTest extends TestCase
 
     public function testExposesProcessManagerInfo(): void
     {
-        $json = (string) file_get_contents(__DIR__ . "/fixtures/fpm-status.json");
-        $metrics = $this->index((new FpmCollector($this->fetcher(["http://fpm/status?json&full" => $json]), ["www" => "http://fpm/status"]))->collect());
+        $metrics = $this->fixtureMetrics();
 
         self::assertSame(1, $metrics["phpfpm_info{\"pool\":\"www\",\"process_manager\":\"dynamic\"}"]);
     }
 
     public function testExposesStartTime(): void
     {
-        $json = (string) file_get_contents(__DIR__ . "/fixtures/fpm-status.json");
-        $metrics = $this->index((new FpmCollector($this->fetcher(["http://fpm/status?json&full" => $json]), ["www" => "http://fpm/status"]))->collect());
+        $metrics = $this->fixtureMetrics();
 
         self::assertSame(1760000000, $metrics["phpfpm_start_time_seconds{\"pool\":\"www\"}"]);
     }
 
     public function testExposesPeakCpu(): void
     {
-        $json = (string) file_get_contents(__DIR__ . "/fixtures/fpm-status.json");
-        $metrics = $this->index((new FpmCollector($this->fetcher(["http://fpm/status?json&full" => $json]), ["www" => "http://fpm/status"]))->collect());
+        $metrics = $this->fixtureMetrics();
 
         self::assertSame(0.875, $metrics["phpfpm_process_max_last_request_cpu_ratio{\"pool\":\"www\"}"]);
     }
