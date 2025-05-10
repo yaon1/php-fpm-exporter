@@ -30,10 +30,13 @@ if ($path !== '/metrics') {
 $env = array_filter(getenv(), 'is_string');
 $config = Config::fromEnv($env);
 $fetcher = SchemeFetcher::create($config->timeout);
+$log = static function (string $message): void {
+    file_put_contents('php://stderr', sprintf("[%s] %s\n", date(DATE_ATOM), $message));
+};
 $started = hrtime(true);
 
 $metrics = [
-    ...(new FpmCollector($fetcher, $config->fpmPools))->collect(),
+    ...(new FpmCollector($fetcher, $config->fpmPools, $log))->collect(),
     ...(new OpcacheCollector($fetcher, $config->opcachePools))->collect(),
 ];
 $metrics[] = new Metric('phpfpm_exporter_scrape_duration_seconds', 'gauge', 'Time spent collecting metrics', (hrtime(true) - $started) / 1e9);
