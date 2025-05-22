@@ -50,4 +50,12 @@ final class OpcacheCollectorTest extends TestCase
     {
         self::assertSame('opcache_enabled{"pool":"www"}=0', $this->collect('false'));
     }
+
+    public function testMapsKeyUsage(): void
+    {
+        $out = $this->collect((string) json_encode(['opcache_enabled' => true, 'opcache_statistics' => ['num_cached_keys' => 300, 'max_cached_keys' => 16229]]));
+
+        self::assertStringContainsString('opcache_cached_keys{"pool":"www"}=300', $out);
+        self::assertStringContainsString('opcache_max_cached_keys{"pool":"www"}=16229', $out);
+    }
 }

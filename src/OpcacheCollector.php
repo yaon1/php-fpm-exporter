@@ -43,6 +43,8 @@ final readonly class OpcacheCollector
             foreach (['oom_restarts' => 'oom', 'hash_restarts' => 'hash', 'manual_restarts' => 'manual'] as $key => $reason) {
                 yield new Metric('opcache_restarts_total', 'counter', 'Cache restarts', Json::number($stats, $key), $labels + ['reason' => $reason]);
             }
+            yield new Metric('opcache_cached_keys', 'gauge', 'Keys in the OPcache hash table', Json::number($stats, 'num_cached_keys'), $labels);
+            yield new Metric('opcache_max_cached_keys', 'gauge', 'Capacity of the OPcache hash table (opcache.max_accelerated_files)', Json::number($stats, 'max_cached_keys'), $labels);
             yield new Metric('opcache_interned_strings_used_bytes', 'gauge', 'Interned strings buffer used', Json::number($strings, 'used_memory'), $labels);
             yield new Metric('opcache_interned_strings_buffer_bytes', 'gauge', 'Interned strings buffer size', Json::number($strings, 'buffer_size'), $labels);
         }
