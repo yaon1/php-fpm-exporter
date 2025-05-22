@@ -58,4 +58,11 @@ final class OpcacheCollectorTest extends TestCase
         self::assertStringContainsString('opcache_cached_keys{"pool":"www"}=300', $out);
         self::assertStringContainsString('opcache_max_cached_keys{"pool":"www"}=16229', $out);
     }
+
+    public function testMapsBlacklistMisses(): void
+    {
+        $out = $this->collect((string) json_encode(['opcache_enabled' => true, 'opcache_statistics' => ['blacklist_misses' => 3]]));
+
+        self::assertStringContainsString('opcache_blacklist_misses_total{"pool":"www"}=3', $out);
+    }
 }
