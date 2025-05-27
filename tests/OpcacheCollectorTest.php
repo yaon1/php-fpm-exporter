@@ -65,4 +65,12 @@ final class OpcacheCollectorTest extends TestCase
 
         self::assertStringContainsString('opcache_blacklist_misses_total{"pool":"www"}=3', $out);
     }
+
+    public function testMapsTimes(): void
+    {
+        $out = $this->collect((string) json_encode(['opcache_enabled' => true, 'opcache_statistics' => ['start_time' => 1700000000, 'last_restart_time' => 0]]));
+
+        self::assertStringContainsString('opcache_start_time_seconds{"pool":"www"}=1700000000', $out);
+        self::assertStringContainsString('opcache_last_restart_time_seconds{"pool":"www"}=0', $out);
+    }
 }
