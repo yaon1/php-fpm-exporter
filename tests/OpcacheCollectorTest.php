@@ -82,4 +82,12 @@ final class OpcacheCollectorTest extends TestCase
         self::assertStringContainsString('opcache_jit_buffer_free_bytes{"pool":"www"}=60000000', $out);
         self::assertStringNotContainsString('jit', $this->collect((string) json_encode(['opcache_enabled' => true])));
     }
+
+    public function testMapsPreload(): void
+    {
+        $out = $this->collect((string) json_encode(['opcache_enabled' => true, 'preload_statistics' => ['memory_consumption' => 2048, 'scripts' => ['/app/a.php', '/app/b.php']]]));
+
+        self::assertStringContainsString('opcache_preload_memory_bytes{"pool":"www"}=2048', $out);
+        self::assertStringContainsString('opcache_preload_scripts{"pool":"www"}=2', $out);
+    }
 }

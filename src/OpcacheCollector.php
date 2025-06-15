@@ -51,6 +51,12 @@ final readonly class OpcacheCollector
             yield new Metric('opcache_interned_strings_used_bytes', 'gauge', 'Interned strings buffer used', Json::number($strings, 'used_memory'), $labels);
             yield new Metric('opcache_interned_strings_buffer_bytes', 'gauge', 'Interned strings buffer size', Json::number($strings, 'buffer_size'), $labels);
 
+            $preload = Json::nested($raw, 'preload_statistics');
+            if ($preload !== []) {
+                yield new Metric('opcache_preload_memory_bytes', 'gauge', 'Memory used by preloaded scripts', Json::number($preload, 'memory_consumption'), $labels);
+                yield new Metric('opcache_preload_scripts', 'gauge', 'Number of preloaded scripts', is_array($preload['scripts'] ?? null) ? count($preload['scripts']) : 0, $labels);
+            }
+
             $jit = Json::nested($raw, 'jit');
             if ($jit !== []) {
                 yield new Metric('opcache_jit_enabled', 'gauge', 'Whether the JIT is active', Json::number($jit, 'on'), $labels);
