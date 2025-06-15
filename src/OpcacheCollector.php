@@ -50,6 +50,13 @@ final readonly class OpcacheCollector
             yield new Metric('opcache_last_restart_time_seconds', 'gauge', 'Unix time of the last OPcache restart, 0 if never', Json::number($stats, 'last_restart_time'), $labels);
             yield new Metric('opcache_interned_strings_used_bytes', 'gauge', 'Interned strings buffer used', Json::number($strings, 'used_memory'), $labels);
             yield new Metric('opcache_interned_strings_buffer_bytes', 'gauge', 'Interned strings buffer size', Json::number($strings, 'buffer_size'), $labels);
+
+            $jit = Json::nested($raw, 'jit');
+            if ($jit !== []) {
+                yield new Metric('opcache_jit_enabled', 'gauge', 'Whether the JIT is active', Json::number($jit, 'on'), $labels);
+                yield new Metric('opcache_jit_buffer_bytes', 'gauge', 'JIT buffer size', Json::number($jit, 'buffer_size'), $labels);
+                yield new Metric('opcache_jit_buffer_free_bytes', 'gauge', 'Free space in the JIT buffer', Json::number($jit, 'buffer_free'), $labels);
+            }
         }
     }
 }

@@ -73,4 +73,13 @@ final class OpcacheCollectorTest extends TestCase
         self::assertStringContainsString('opcache_start_time_seconds{"pool":"www"}=1700000000', $out);
         self::assertStringContainsString('opcache_last_restart_time_seconds{"pool":"www"}=0', $out);
     }
+
+    public function testMapsJitWhenPresent(): void
+    {
+        $out = $this->collect((string) json_encode(['opcache_enabled' => true, 'jit' => ['on' => true, 'buffer_size' => 67108864, 'buffer_free' => 60000000]]));
+
+        self::assertStringContainsString('opcache_jit_enabled{"pool":"www"}=1', $out);
+        self::assertStringContainsString('opcache_jit_buffer_free_bytes{"pool":"www"}=60000000', $out);
+        self::assertStringNotContainsString('jit', $this->collect((string) json_encode(['opcache_enabled' => true])));
+    }
 }
