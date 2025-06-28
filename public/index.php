@@ -3,43 +3,24 @@
 declare(strict_types=1);
 
 use Yaon\FpmExporter\Config;
-use Yaon\FpmExporter\FpmCollector;
+use Yaon\FpmExporter\Exporter;
 use Yaon\FpmExporter\SchemeFetcher;
-use Yaon\FpmExporter\Metric;
-use Yaon\FpmExporter\OpcacheCollector;
-use Yaon\FpmExporter\TextFormatter;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
-
-$path = parse_url(is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH);
-
-if ($path === '/healthz') {
-    echo "ok\n";
-
-    return;
-}
-
-if ($path !== '/metrics') {
-    header('Content-Type: text/html');
-    echo '<h1>php-fpm-exporter</h1><p><a href="/metrics">Metrics</a></p>';
-
-    return;
-}
 
 /** @var array<string, string> $env */
 $env = array_filter(getenv(), 'is_string');
 $config = Config::fromEnv($env);
-$fetcher = SchemeFetcher::create($config->timeout);
 $log = static function (string $message): void {
     file_put_contents('php://stderr', sprintf("[%s] %s\n", date(DATE_ATOM), $message));
 };
-$started = hrtime(true);
 
-$metrics = [
-    ...(new FpmCollector($fetcher, $config->fpmPools, $log))->collect(),
-    ...(new OpcacheCollector($fetcher, $config->opcachePools))->collect(),
-];
-$metrics[] = new Metric('phpfpm_exporter_scrape_duration_seconds', 'gauge', 'Time spent collecting metrics', (hrtime(true) - $started) / 1e9);
+$headers = [];
+foreach ($_SERVER as $key => $value) {
+    if (is_string($key) && is_string($value) && str_starts_with($key, 'HTTP_')) {
+        $headers[strtolower(str_replace('_', '-', substr($key, 5)))] = $value;
+    }
+}
+$path = (string) parse_url(is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH);
 
-header('Content-Type: text/plain; version=0.0.4; charset=utf-8');
-echo (new TextFormatter())->format($metrics);
+(new Exporter($config, SchemeFetcher::create($config->timeout), $log))->handle($path, $headers)->send();
