@@ -39,4 +39,9 @@ final class ExporterTest extends TestCase
         self::assertSame("ok\n", $this->exporter()->handle('/healthz')->body);
         self::assertStringContainsString('href="/metrics"', $this->exporter()->handle('/')->body);
     }
+
+    public function testExposesBuildInfo(): void
+    {
+        self::assertMatchesRegularExpression('/^phpfpm_exporter_build_info\{version="[^"]+",php_version="8\.\d+/m', $this->exporter()->handle('/metrics')->body);
+    }
 }

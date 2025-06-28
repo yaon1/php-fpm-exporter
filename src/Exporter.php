@@ -29,6 +29,7 @@ final readonly class Exporter
             ...(new FpmCollector($this->fetcher, $this->config->fpmPools, $this->log))->collect(),
             ...(new OpcacheCollector($this->fetcher, $this->config->opcachePools))->collect(),
         ];
+        $metrics[] = new Metric('phpfpm_exporter_build_info', 'gauge', 'Exporter version and PHP runtime, always 1', 1, ['version' => Version::VERSION, 'php_version' => PHP_VERSION]);
         $metrics[] = new Metric('phpfpm_exporter_scrape_duration_seconds', 'gauge', 'Time spent collecting metrics', (hrtime(true) - $started) / 1e9);
 
         return new HttpResponse(200, (new TextFormatter())->format($metrics), ['Content-Type' => 'text/plain; version=0.0.4; charset=utf-8']);
