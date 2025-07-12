@@ -18,7 +18,8 @@ final readonly class Exporter
         return match ($path) {
             '/healthz' => new HttpResponse(200, "ok\n", ['Content-Type' => 'text/plain']),
             '/metrics' => $this->metrics(),
-            default => new HttpResponse(200, '<h1>php-fpm-exporter</h1><p><a href="/metrics">Metrics</a></p>', ['Content-Type' => 'text/html']),
+            '/' => new HttpResponse(200, '<h1>php-fpm-exporter</h1><p><a href="/metrics">Metrics</a></p>', ['Content-Type' => 'text/html']),
+            default => new HttpResponse(404, "Not found\n", ['Content-Type' => 'text/plain']),
         };
     }
 

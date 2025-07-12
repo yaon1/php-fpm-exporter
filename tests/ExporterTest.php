@@ -44,4 +44,9 @@ final class ExporterTest extends TestCase
     {
         self::assertMatchesRegularExpression('/^phpfpm_exporter_build_info\{version="[^"]+",php_version="8\.\d+/m', $this->exporter()->handle('/metrics')->body);
     }
+
+    public function testUnknownPathIs404(): void
+    {
+        self::assertSame(404, $this->exporter()->handle('/favicon.ico')->status);
+    }
 }
