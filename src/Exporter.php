@@ -17,10 +17,21 @@ final readonly class Exporter
     {
         return match ($path) {
             '/healthz' => new HttpResponse(200, "ok\n", ['Content-Type' => 'text/plain']),
-            '/metrics' => $this->metrics(),
+            '/metrics' => $this->authorized($headers) ? $this->metrics() : new HttpResponse(401, "Unauthorized\n", ['WWW-Authenticate' => 'Basic realm="metrics"']),
             '/' => new HttpResponse(200, '<h1>php-fpm-exporter</h1><p><a href="/metrics">Metrics</a></p>', ['Content-Type' => 'text/html']),
             default => new HttpResponse(404, "Not found\n", ['Content-Type' => 'text/plain']),
         };
+    }
+
+    /** @param array<string, string> $headers */
+    private function authorized(array $headers): bool
+    {
+        if ($this->config->basicAuth === null) {
+            return true;
+        }
+        $given = $headers['authorization'] ?? '';
+
+        return hash_equals('Basic ' . base64_encode($this->config->basicAuth), $given);
     }
 
     private function metrics(): HttpResponse

@@ -14,6 +14,8 @@ final readonly class Config
         public array $fpmPools,
         public array $opcachePools,
         public float $timeout,
+        /** "user:password" required for /metrics, null disables auth */
+        public ?string $basicAuth = null,
     ) {
     }
 
@@ -24,6 +26,7 @@ final readonly class Config
             self::pools($env['FPM_STATUS_URLS'] ?? ''),
             self::pools($env['OPCACHE_STATUS_URLS'] ?? ''),
             (float) ($env['SCRAPE_TIMEOUT'] ?? 2.0),
+            ($env['METRICS_BASIC_AUTH'] ?? '') === '' ? null : $env['METRICS_BASIC_AUTH'],
         );
     }
 

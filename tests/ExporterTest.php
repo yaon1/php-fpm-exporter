@@ -49,4 +49,14 @@ final class ExporterTest extends TestCase
     {
         self::assertSame(404, $this->exporter()->handle('/favicon.ico')->status);
     }
+
+    public function testBasicAuthProtectsMetrics(): void
+    {
+        $exporter = $this->exporter(['METRICS_BASIC_AUTH' => 'prom:s3cret']);
+
+        self::assertSame(401, $exporter->handle('/metrics')->status);
+        self::assertSame(401, $exporter->handle('/metrics', ['authorization' => 'Basic ' . base64_encode('prom:wrong')])->status);
+        self::assertSame(200, $exporter->handle('/metrics', ['authorization' => 'Basic ' . base64_encode('prom:s3cret')])->status);
+        self::assertSame(200, $exporter->handle('/healthz')->status);
+    }
 }
