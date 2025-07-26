@@ -25,4 +25,11 @@ final class TextFormatterTest extends TestCase
             $out,
         );
     }
+
+    public function testOpenMetricsUsesCounterFamilyAndEof(): void
+    {
+        $out = (new TextFormatter())->format([new Metric('opcache_hits_total', 'counter', 'Hits', 5)], true);
+
+        self::assertSame("# HELP opcache_hits Hits\n# TYPE opcache_hits counter\nopcache_hits_total 5\n# EOF\n", $out);
+    }
 }

@@ -4,23 +4,26 @@ declare(strict_types=1);
 
 namespace Yaon\FpmExporter;
 
-/** Renders metrics in the Prometheus text exposition format 0.0.4. */
+/** Renders metrics in the Prometheus text format 0.0.4 or, optionally, OpenMetrics 1.0. */
 final class TextFormatter
 {
     /** @param iterable<Metric> $metrics */
-    public function format(iterable $metrics): string
+    public function format(iterable $metrics, bool $openMetrics = false): string
     {
         $out = '';
         $declared = [];
         foreach ($metrics as $m) {
-            if (!isset($declared[$m->name])) {
-                $out .= sprintf("# HELP %s %s\n# TYPE %s %s\n", $m->name, $this->escape($m->help), $m->name, $m->type);
-                $declared[$m->name] = true;
+            // OpenMetrics names the counter family without the "_total" suffix of its samples.
+            $family = $openMetrics && $m->type === 'counter' ? (string) preg_replace('/_total$/', '', $m->name) : $m->name;
+            $type = $openMetrics && $m->type === 'untyped' ? 'unknown' : $m->type;
+            if (!isset($declared[$family])) {
+                $out .= sprintf("# HELP %s %s\n# TYPE %s %s\n", $family, $this->escape($m->help), $family, $type);
+                $declared[$family] = true;
             }
             $out .= $m->name . $this->labels($m->labels) . ' ' . $this->value($m->value) . "\n";
         }
 
-        return $out;
+        return $openMetrics ? $out . "# EOF\n" : $out;
     }
 
     /** @param array<string, string> $labels */
