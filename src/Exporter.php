@@ -17,7 +17,7 @@ final readonly class Exporter
     {
         return match ($path) {
             '/healthz' => new HttpResponse(200, "ok\n", ['Content-Type' => 'text/plain']),
-            '/metrics' => $this->authorized($headers) ? $this->metrics() : new HttpResponse(401, "Unauthorized\n", ['WWW-Authenticate' => 'Basic realm="metrics"']),
+            '/metrics' => $this->authorized($headers) ? $this->metrics(str_contains($headers['accept'] ?? '', 'application/openmetrics-text')) : new HttpResponse(401, "Unauthorized\n", ['WWW-Authenticate' => 'Basic realm="metrics"']),
             '/' => new HttpResponse(200, '<h1>php-fpm-exporter</h1><p><a href="/metrics">Metrics</a></p>', ['Content-Type' => 'text/html']),
             default => new HttpResponse(404, "Not found\n", ['Content-Type' => 'text/plain']),
         };
@@ -34,7 +34,7 @@ final readonly class Exporter
         return hash_equals('Basic ' . base64_encode($this->config->basicAuth), $given);
     }
 
-    private function metrics(): HttpResponse
+    private function metrics(bool $openMetrics): HttpResponse
     {
         $started = hrtime(true);
         $metrics = [
@@ -44,6 +44,8 @@ final readonly class Exporter
         $metrics[] = new Metric('phpfpm_exporter_build_info', 'gauge', 'Exporter version and PHP runtime, always 1', 1, ['version' => Version::VERSION, 'php_version' => PHP_VERSION]);
         $metrics[] = new Metric('phpfpm_exporter_scrape_duration_seconds', 'gauge', 'Time spent collecting metrics', (hrtime(true) - $started) / 1e9);
 
-        return new HttpResponse(200, (new TextFormatter())->format($metrics), ['Content-Type' => 'text/plain; version=0.0.4; charset=utf-8']);
+        $contentType = $openMetrics ? 'application/openmetrics-text; version=1.0.0; charset=utf-8' : 'text/plain; version=0.0.4; charset=utf-8';
+
+        return new HttpResponse(200, (new TextFormatter())->format($metrics, $openMetrics), ['Content-Type' => $contentType]);
     }
 }

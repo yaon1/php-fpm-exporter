@@ -59,4 +59,12 @@ final class ExporterTest extends TestCase
         self::assertSame(200, $exporter->handle('/metrics', ['authorization' => 'Basic ' . base64_encode('prom:s3cret')])->status);
         self::assertSame(200, $exporter->handle('/healthz')->status);
     }
+
+    public function testNegotiatesOpenMetrics(): void
+    {
+        $response = $this->exporter()->handle('/metrics', ['accept' => 'application/openmetrics-text;version=1.0.0,text/plain;q=0.5']);
+
+        self::assertStringStartsWith('application/openmetrics-text', $response->headers['Content-Type']);
+        self::assertStringEndsWith("# EOF\n", $response->body);
+    }
 }
