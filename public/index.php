@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Yaon\FpmExporter\Config;
 use Yaon\FpmExporter\Exporter;
+use Yaon\FpmExporter\FileCache;
 use Yaon\FpmExporter\SchemeFetcher;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -23,4 +24,4 @@ foreach ($_SERVER as $key => $value) {
 }
 $path = (string) parse_url(is_string($_SERVER['REQUEST_URI'] ?? null) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH);
 
-(new Exporter($config, SchemeFetcher::create($config->timeout), $log))->handle($path, $headers)->send();
+(new Exporter($config, SchemeFetcher::create($config->timeout), $log, new FileCache(sys_get_temp_dir())))->handle($path, $headers)->send();

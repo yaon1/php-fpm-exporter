@@ -8,8 +8,12 @@ namespace Yaon\FpmExporter;
 final readonly class Exporter
 {
     /** @param (\Closure(string): void)|null $log */
-    public function __construct(private Config $config, private Fetcher $fetcher, private ?\Closure $log = null)
-    {
+    public function __construct(
+        private Config $config,
+        private Fetcher $fetcher,
+        private ?\Closure $log = null,
+        private ?FileCache $cache = null,
+    ) {
     }
 
     /** @param array<string, string> $headers lower-cased request headers */
@@ -36,6 +40,15 @@ final readonly class Exporter
 
     private function metrics(bool $openMetrics): HttpResponse
     {
+        $contentType = $openMetrics ? 'application/openmetrics-text; version=1.0.0; charset=utf-8' : 'text/plain; version=0.0.4; charset=utf-8';
+        $render = fn (): string => $this->render($openMetrics);
+        $body = $this->cache === null ? $render() : $this->cache->remember(($openMetrics ? 'om:' : 'prom:') . serialize($this->config), $this->config->cacheTtl, $render);
+
+        return new HttpResponse(200, $body, ['Content-Type' => $contentType]);
+    }
+
+    private function render(bool $openMetrics): string
+    {
         $started = hrtime(true);
         $metrics = [
             ...(new FpmCollector($this->fetcher, $this->config->fpmPools, $this->log))->collect(),
@@ -44,8 +57,6 @@ final readonly class Exporter
         $metrics[] = new Metric('phpfpm_exporter_build_info', 'gauge', 'Exporter version and PHP runtime, always 1', 1, ['version' => Version::VERSION, 'php_version' => PHP_VERSION]);
         $metrics[] = new Metric('phpfpm_exporter_scrape_duration_seconds', 'gauge', 'Time spent collecting metrics', (hrtime(true) - $started) / 1e9);
 
-        $contentType = $openMetrics ? 'application/openmetrics-text; version=1.0.0; charset=utf-8' : 'text/plain; version=0.0.4; charset=utf-8';
-
-        return new HttpResponse(200, (new TextFormatter())->format($metrics, $openMetrics), ['Content-Type' => $contentType]);
+        return (new TextFormatter())->format($metrics, $openMetrics);
     }
 }

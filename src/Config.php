@@ -16,6 +16,8 @@ final readonly class Config
         public float $timeout,
         /** "user:password" required for /metrics, null disables auth */
         public ?string $basicAuth = null,
+        /** Seconds to reuse a scrape; protects FPM when several Prometheus replicas scrape at once */
+        public float $cacheTtl = 0.0,
     ) {
     }
 
@@ -27,6 +29,7 @@ final readonly class Config
             self::pools($env['OPCACHE_STATUS_URLS'] ?? ''),
             (float) ($env['SCRAPE_TIMEOUT'] ?? 2.0),
             ($env['METRICS_BASIC_AUTH'] ?? '') === '' ? null : $env['METRICS_BASIC_AUTH'],
+            (float) ($env['SCRAPE_CACHE_TTL'] ?? 0),
         );
     }
 
