@@ -32,4 +32,17 @@ final class ConfigTest extends TestCase
         self::assertSame(['u:p', 2.5, 1.0], [$config->basicAuth, $config->cacheTtl, $config->timeout]);
         self::assertNull(Config::fromEnv(['METRICS_BASIC_AUTH' => ''])->basicAuth);
     }
+
+    public function testRejectsDuplicateLabelsAndBadSchemes(): void
+    {
+        try {
+            Config::pools('a=http://x/status,a=http://y/status');
+            self::fail('duplicate accepted');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('used twice', $e->getMessage());
+        }
+
+        $this->expectExceptionMessageMatches('/unsupported URL/');
+        Config::pools('www=fpm:9000/status');
+    }
 }

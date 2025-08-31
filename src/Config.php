@@ -43,6 +43,12 @@ final readonly class Config
         $pools = [];
         foreach (array_filter(array_map('trim', explode(',', $spec))) as $entry) {
             [$name, $url] = preg_match('~^([\w.-]+)=(.+)$~', $entry, $m) === 1 ? [$m[1], $m[2]] : ['default', $entry];
+            if (isset($pools[$name])) {
+                throw new \InvalidArgumentException("Pool label \"$name\" is used twice");
+            }
+            if (preg_match('~^(https?|tcp|unix)://~i', $url) !== 1) {
+                throw new \InvalidArgumentException("Pool \"$name\" has an unsupported URL \"$url\"; use http(s)://, tcp:// or unix://");
+            }
             $pools[$name] = $url;
         }
 
