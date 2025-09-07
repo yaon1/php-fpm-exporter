@@ -11,7 +11,15 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 /** @var array<string, string> $env */
 $env = array_filter(getenv(), 'is_string');
-$config = Config::fromEnv($env);
+try {
+    $config = Config::fromEnv($env);
+} catch (InvalidArgumentException $e) {
+    http_response_code(500);
+    file_put_contents('php://stderr', 'Configuration error: ' . $e->getMessage() . "\n");
+    echo 'Configuration error: ', $e->getMessage(), "\n";
+
+    return;
+}
 $log = static function (string $message): void {
     file_put_contents('php://stderr', sprintf("[%s] %s\n", date(DATE_ATOM), $message));
 };
