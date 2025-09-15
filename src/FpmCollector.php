@@ -36,6 +36,7 @@ final readonly class FpmCollector
     public function collect(): \Generator
     {
         foreach ($this->pools as $name => $url) {
+            $started = hrtime(true);
             try {
                 $status = Json::object($this->fetcher->fetch($url . (str_contains($url, '?') ? '&' : '?') . 'json&full'));
             } catch (\Throwable $e) {
@@ -46,6 +47,7 @@ final readonly class FpmCollector
 
             $labels = ['pool' => $name];
             yield new Metric('phpfpm_up', 'gauge', 'Whether the FPM status page could be scraped', 1, $labels);
+            yield new Metric('phpfpm_scrape_duration_seconds', 'gauge', 'Time taken to fetch the pool status', (hrtime(true) - $started) / 1e9, $labels);
             yield new Metric('phpfpm_start_time_seconds', 'gauge', 'Unix time when the pool started', Json::number($status, 'start time'), $labels);
             $manager = is_string($status['process manager'] ?? null) ? $status['process manager'] : 'unknown';
             yield new Metric('phpfpm_info', 'gauge', 'Pool information, always 1', 1, $labels + ['process_manager' => $manager]);

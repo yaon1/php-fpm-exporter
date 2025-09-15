@@ -104,4 +104,9 @@ final class FpmCollectorTest extends TestCase
 
         self::assertSame(['pool api: down'], $log);
     }
+
+    public function testReportsPerPoolScrapeDuration(): void
+    {
+        self::assertArrayHasKey('phpfpm_scrape_duration_seconds{"pool":"www"}', $this->fixtureMetrics());
+    }
 }
