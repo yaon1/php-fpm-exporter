@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+
+// One-shot mode: prints metrics to stdout, or writes them atomically to a file
+// for node_exporter's textfile collector.
+//
+//   FPM_STATUS_URLS=www=unix:///run/php/fpm.sock;/status bin/php-fpm-exporter
+//   bin/php-fpm-exporter --textfile=/var/lib/node_exporter/php_fpm.prom
+
+declare(strict_types=1);
+
+use Yaon\FpmExporter\Config;
+use Yaon\FpmExporter\Exporter;
+use Yaon\FpmExporter\SchemeFetcher;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$options = getopt('', ['textfile:', 'help']);
+if (isset($options['help'])) {
+    fwrite(STDOUT, "Usage: php-fpm-exporter [--textfile=PATH]\nConfigured through FPM_STATUS_URLS, OPCACHE_STATUS_URLS and SCRAPE_TIMEOUT.\n");
+    exit(0);
+}
+
+/** @var array<string, string> $env */
+$env = array_filter(getenv(), 'is_string');
+try {
+    $config = Config::fromEnv($env);
+} catch (InvalidArgumentException $e) {
+    fwrite(STDERR, 'Configuration error: ' . $e->getMessage() . "\n");
+    exit(2);
+}
+
+$log = static fn (string $m) => fwrite(STDERR, $m . "\n");
+$body = (new Exporter($config, SchemeFetcher::create($config->timeout), $log))->handle('/metrics')->body;
+
+$target = $options['textfile'] ?? null;
+if (!is_string($target)) {
+    fwrite(STDOUT, $body);
+    exit(0);
+}
+
+// Write then rename so node_exporter never reads a half-written file.
+$tmp = $target . '.' . getmypid() . '.tmp';
+if (file_put_contents($tmp, $body) === false || !rename($tmp, $target)) {
+    fwrite(STDERR, "Cannot write $target\n");
+    exit(1);
+}
