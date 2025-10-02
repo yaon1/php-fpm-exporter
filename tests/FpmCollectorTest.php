@@ -109,4 +109,10 @@ final class FpmCollectorTest extends TestCase
     {
         self::assertArrayHasKey('phpfpm_scrape_duration_seconds{"pool":"www"}', $this->fixtureMetrics());
     }
+
+    public function testAveragesRunningRequestDuration(): void
+    {
+        // Only pid 11 is running, with 1.5 s.
+        self::assertSame(1.5, $this->fixtureMetrics()['phpfpm_process_avg_running_request_duration_seconds{"pool":"www"}']);
+    }
 }
