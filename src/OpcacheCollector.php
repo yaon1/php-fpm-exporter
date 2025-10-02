@@ -39,6 +39,8 @@ final readonly class OpcacheCollector
             }
             yield new Metric('opcache_cached_scripts', 'gauge', 'Scripts in the cache', Json::number($stats, 'num_cached_scripts'), $labels);
             yield new Metric('opcache_hits_total', 'counter', 'Cache hits', Json::number($stats, 'hits'), $labels);
+            $lookups = Json::number($stats, 'hits') + Json::number($stats, 'misses');
+            yield new Metric('opcache_hit_ratio', 'gauge', 'Lifetime cache hit ratio (0-1)', $lookups === 0 ? 0 : Json::number($stats, 'hits') / $lookups, $labels);
             yield new Metric('opcache_misses_total', 'counter', 'Cache misses', Json::number($stats, 'misses'), $labels);
             foreach (['oom_restarts' => 'oom', 'hash_restarts' => 'hash', 'manual_restarts' => 'manual'] as $key => $reason) {
                 yield new Metric('opcache_restarts_total', 'counter', 'Cache restarts', Json::number($stats, $key), $labels + ['reason' => $reason]);

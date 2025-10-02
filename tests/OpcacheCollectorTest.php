@@ -90,4 +90,11 @@ final class OpcacheCollectorTest extends TestCase
         self::assertStringContainsString('opcache_preload_memory_bytes{"pool":"www"}=2048', $out);
         self::assertStringContainsString('opcache_preload_scripts{"pool":"www"}=2', $out);
     }
+
+    public function testComputesHitRatio(): void
+    {
+        $out = $this->collect((string) json_encode(['opcache_enabled' => true, 'opcache_statistics' => ['hits' => 900, 'misses' => 100]]));
+
+        self::assertStringContainsString('opcache_hit_ratio{"pool":"www"}=0.9', $out);
+    }
 }
