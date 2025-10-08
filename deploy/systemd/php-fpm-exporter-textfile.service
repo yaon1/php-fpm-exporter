@@ -1,0 +1,8 @@
+[Unit]
+Description=Write PHP-FPM metrics for node_exporter
+
+[Service]
+Type=oneshot
+Environment=FPM_STATUS_URLS=www=unix:///run/php/php-fpm.sock;/status
+ExecStart=/opt/php-fpm-exporter/bin/php-fpm-exporter --textfile=/var/lib/node_exporter/textfile/php_fpm.prom
+User=www-data

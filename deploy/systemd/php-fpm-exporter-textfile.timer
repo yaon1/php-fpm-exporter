@@ -1,0 +1,11 @@
+# Alternative to the HTTP server: refresh a textfile for node_exporter every 15 s.
+[Unit]
+Description=Refresh PHP-FPM metrics for node_exporter
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=15s
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target
