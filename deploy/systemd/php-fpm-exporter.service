@@ -1,0 +1,19 @@
+# Runs the exporter on bare-metal hosts next to php-fpm.
+# Install: cp php-fpm-exporter.service /etc/systemd/system/ && systemctl enable --now php-fpm-exporter
+[Unit]
+Description=Prometheus exporter for PHP-FPM
+After=php-fpm.service
+
+[Service]
+Environment=FPM_STATUS_URLS=www=unix:///run/php/php-fpm.sock;/status
+Environment=PHP_CLI_SERVER_WORKERS=2
+ExecStart=/usr/bin/php -S 0.0.0.0:9253 -t /opt/php-fpm-exporter/public
+User=www-data
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
