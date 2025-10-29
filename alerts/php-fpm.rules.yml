@@ -1,0 +1,11 @@
+groups:
+  - name: php-fpm
+    rules:
+      - alert: PhpFpmDown
+        expr: phpfpm_up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'PHP-FPM pool {{ $labels.pool }} on {{ $labels.instance }} is not responding'
+          description: 'The exporter cannot read the status page. Check that FPM is running and pm.status_path is reachable.'
