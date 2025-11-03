@@ -26,3 +26,12 @@ groups:
         annotations:
           summary: 'Requests wait for a free worker in pool {{ $labels.pool }}'
           description: '{{ $value }} requests are queued in the listen backlog.'
+
+      - alert: PhpFpmSlowRequests
+        expr: rate(phpfpm_slow_requests_total[5m]) * 60 > 1
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: 'More than one slow request per minute in pool {{ $labels.pool }}'
+          description: 'See the FPM slowlog (request_slowlog_timeout) for stack traces.'
