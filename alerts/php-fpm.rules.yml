@@ -9,3 +9,20 @@ groups:
         annotations:
           summary: 'PHP-FPM pool {{ $labels.pool }} on {{ $labels.instance }} is not responding'
           description: 'The exporter cannot read the status page. Check that FPM is running and pm.status_path is reachable.'
+
+      - alert: PhpFpmMaxChildrenReached
+        expr: increase(phpfpm_max_children_reached_total[10m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Pool {{ $labels.pool }} hit pm.max_children'
+          description: 'Requests are queuing because all workers are busy. Raise pm.max_children if memory allows, or look for slow requests.'
+
+      - alert: PhpFpmListenQueue
+        expr: phpfpm_listen_queue > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Requests wait for a free worker in pool {{ $labels.pool }}'
+          description: '{{ $value }} requests are queued in the listen backlog.'
