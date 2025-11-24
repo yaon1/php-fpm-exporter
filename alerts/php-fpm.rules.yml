@@ -35,3 +35,28 @@ groups:
         annotations:
           summary: 'More than one slow request per minute in pool {{ $labels.pool }}'
           description: 'See the FPM slowlog (request_slowlog_timeout) for stack traces.'
+
+      - alert: OpcacheFull
+        expr: opcache_cache_full == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'OPcache memory is exhausted in pool {{ $labels.pool }}'
+          description: 'New scripts are not cached. Increase opcache.memory_consumption.'
+
+      - alert: OpcacheOomRestarts
+        expr: increase(opcache_restarts_total{reason="oom"}[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: 'OPcache restarted because it ran out of memory ({{ $labels.pool }})'
+
+      - alert: OpcacheKeysNearlyFull
+        expr: opcache_cached_keys / opcache_max_cached_keys > 0.9
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: 'OPcache hash table is over 90% full in pool {{ $labels.pool }}'
+          description: 'Raise opcache.max_accelerated_files above the number of PHP files in the project.'
