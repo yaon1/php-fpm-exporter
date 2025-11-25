@@ -1,0 +1,36 @@
+# promtool test rules alerts/php-fpm.rules.test.yml
+rule_files:
+  - php-fpm.rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'phpfpm_up{pool="www", instance="app:9253"}'
+        values: '1 0 0 0'
+      - series: 'phpfpm_max_children_reached_total{pool="www"}'
+        values: '0 0 1 1'
+      - series: 'opcache_restarts_total{pool="www", reason="oom"}'
+        values: '0 1 1 1'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: PhpFpmDown
+        exp_alerts:
+          - exp_labels: { severity: critical, pool: www, instance: 'app:9253' }
+            exp_annotations:
+              summary: 'PHP-FPM pool www on app:9253 is not responding'
+              description: 'The exporter cannot read the status page. Check that FPM is running and pm.status_path is reachable.'
+      - eval_time: 3m
+        alertname: PhpFpmMaxChildrenReached
+        exp_alerts:
+          - exp_labels: { severity: warning, pool: www }
+            exp_annotations:
+              summary: 'Pool www hit pm.max_children'
+              description: 'Requests are queuing because all workers are busy. Raise pm.max_children if memory allows, or look for slow requests.'
+      - eval_time: 3m
+        alertname: OpcacheOomRestarts
+        exp_alerts:
+          - exp_labels: { severity: warning, pool: www, reason: oom }
+            exp_annotations:
+              summary: 'OPcache restarted because it ran out of memory (www)'
