@@ -19,6 +19,15 @@ jobs:
       - run: vendor/bin/phpstan analyse --no-progress
       - run: vendor/bin/phpunit
 
+  alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: promtool check and test
+        run: |
+          docker run --rm -v "$PWD/alerts:/a" -w /a --entrypoint promtool prom/prometheus:v2.55.1 check rules php-fpm.rules.yml
+          docker run --rm -v "$PWD/alerts:/a" -w /a --entrypoint promtool prom/prometheus:v2.55.1 test rules php-fpm.rules.test.yml
+
   image:
     needs: test
     if: github.event_name == 'push'
