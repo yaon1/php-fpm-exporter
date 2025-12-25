@@ -307,6 +307,34 @@
           "legendFormat": "{{pool}} {{reason}}"
         }
       ]
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Peak request CPU & memory",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "phpfpm_process_max_last_request_cpu_ratio{pool=~\"$pool\"}",
+          "legendFormat": "{{pool}} cpu"
+        }
+      ]
     }
   ]
 }
