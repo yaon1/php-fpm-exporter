@@ -335,6 +335,39 @@
           "legendFormat": "{{pool}} cpu"
         }
       ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Running request age",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 28,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "phpfpm_process_avg_running_request_duration_seconds{pool=~\"$pool\"}",
+          "legendFormat": "{{pool}} avg"
+        },
+        {
+          "refId": "B",
+          "expr": "phpfpm_process_max_request_duration_seconds{pool=~\"$pool\"}",
+          "legendFormat": "{{pool}} max"
+        }
+      ]
     }
   ]
 }
