@@ -396,6 +396,34 @@
           "legendFormat": "{{pool}}"
         }
       ]
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "JIT buffer used",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 36,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "1 - opcache_jit_buffer_free_bytes{pool=~\"$pool\"} / opcache_jit_buffer_bytes{pool=~\"$pool\"}",
+          "legendFormat": "{{pool}}"
+        }
+      ]
     }
   ]
 }
