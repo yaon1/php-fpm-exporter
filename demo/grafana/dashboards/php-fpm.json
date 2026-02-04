@@ -424,6 +424,39 @@
           "legendFormat": "{{pool}}"
         }
       ]
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Scrape duration",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 12,
+        "h": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "phpfpm_scrape_duration_seconds{pool=~\"$pool\"}",
+          "legendFormat": "{{pool}}"
+        },
+        {
+          "refId": "B",
+          "expr": "phpfpm_exporter_scrape_duration_seconds",
+          "legendFormat": "total"
+        }
+      ]
     }
   ]
 }
