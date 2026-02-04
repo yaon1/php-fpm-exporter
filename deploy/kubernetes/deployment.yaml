@@ -1,0 +1,47 @@
+# The exporter runs as a sidecar and talks to FPM over localhost:9000,
+# so neither the status page nor OPcache stats are exposed outside the pod.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: app }
+  template:
+    metadata:
+      labels: { app: app }
+    spec:
+      containers:
+        - name: php-fpm
+          image: ghcr.io/yaon1/php-docker-images:8.4-fpm
+          ports:
+            - containerPort: 9000
+          readinessProbe:
+            exec: { command: [php-fpm-healthcheck] }
+            periodSeconds: 10
+        - name: php-fpm-exporter
+          image: ghcr.io/yaon1/php-fpm-exporter:main
+          env:
+            - name: FPM_STATUS_URLS
+              value: www=tcp://127.0.0.1:9000/status
+            - name: OPCACHE_STATUS_URLS
+              value: www=tcp://127.0.0.1:9000/app/public/opcache-status.php
+          ports:
+            - name: metrics
+              containerPort: 9253
+          readinessProbe:
+            httpGet: { path: /healthz, port: metrics }
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 64Mi }
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
