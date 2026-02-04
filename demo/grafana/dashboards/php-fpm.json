@@ -311,7 +311,7 @@
     {
       "id": 11,
       "type": "timeseries",
-      "title": "Peak request CPU & memory",
+      "title": "Peak request CPU",
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
