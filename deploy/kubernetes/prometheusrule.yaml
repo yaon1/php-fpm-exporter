@@ -1,0 +1,68 @@
+# Generated from alerts/php-fpm.rules.yml; regenerate with `make k8s-rules`.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: php-fpm
+spec:
+  groups:
+    - name: php-fpm
+      rules:
+        - alert: PhpFpmDown
+          expr: phpfpm_up == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: 'PHP-FPM pool {{ $labels.pool }} on {{ $labels.instance }} is not responding'
+            description: 'The exporter cannot read the status page. Check that FPM is running and pm.status_path is reachable.'
+
+        - alert: PhpFpmMaxChildrenReached
+          expr: increase(phpfpm_max_children_reached_total[10m]) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: 'Pool {{ $labels.pool }} hit pm.max_children'
+            description: 'Requests are queuing because all workers are busy. Raise pm.max_children if memory allows, or look for slow requests.'
+
+        - alert: PhpFpmListenQueue
+          expr: phpfpm_listen_queue > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: 'Requests wait for a free worker in pool {{ $labels.pool }}'
+            description: '{{ $value }} requests are queued in the listen backlog.'
+
+        - alert: PhpFpmSlowRequests
+          expr: rate(phpfpm_slow_requests_total[5m]) * 60 > 1
+          for: 10m
+          labels:
+            severity: info
+          annotations:
+            summary: 'More than one slow request per minute in pool {{ $labels.pool }}'
+            description: 'See the FPM slowlog (request_slowlog_timeout) for stack traces.'
+
+        - alert: OpcacheFull
+          expr: opcache_cache_full == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: 'OPcache memory is exhausted in pool {{ $labels.pool }}'
+            description: 'New scripts are not cached. Increase opcache.memory_consumption.'
+
+        - alert: OpcacheOomRestarts
+          expr: increase(opcache_restarts_total{reason="oom"}[1h]) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: 'OPcache restarted because it ran out of memory ({{ $labels.pool }})'
+
+        - alert: OpcacheKeysNearlyFull
+          expr: opcache_cached_keys / opcache_max_cached_keys > 0.9
+          for: 30m
+          labels:
+            severity: info
+          annotations:
+            summary: 'OPcache hash table is over 90% full in pool {{ $labels.pool }}'
+            description: 'Raise opcache.max_accelerated_files above the number of PHP files in the project.'
