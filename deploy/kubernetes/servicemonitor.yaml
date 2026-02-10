@@ -1,0 +1,11 @@
+# For the Prometheus Operator.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: php-fpm
+spec:
+  selector:
+    matchLabels: { app: app }
+  endpoints:
+    - port: metrics
+      interval: 15s

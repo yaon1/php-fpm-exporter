@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-metrics
+  labels: { app: app }
+spec:
+  selector: { app: app }
+  ports:
+    - name: metrics
+      port: 9253
+      targetPort: metrics
