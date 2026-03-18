@@ -18,6 +18,7 @@ final readonly class Config
         public ?string $basicAuth = null,
         /** Seconds to reuse a scrape; protects FPM when several Prometheus replicas scrape at once */
         public float $cacheTtl = 0.0,
+        public bool $verifyTls = true,
     ) {
     }
 
@@ -30,6 +31,7 @@ final readonly class Config
             (float) ($env['SCRAPE_TIMEOUT'] ?? 2.0),
             ($env['METRICS_BASIC_AUTH'] ?? '') === '' ? null : $env['METRICS_BASIC_AUTH'],
             (float) ($env['SCRAPE_CACHE_TTL'] ?? 0),
+            !filter_var($env['SCRAPE_INSECURE_SKIP_VERIFY'] ?? false, FILTER_VALIDATE_BOOL),
         );
     }
 

@@ -45,4 +45,10 @@ final class ConfigTest extends TestCase
         $this->expectExceptionMessageMatches('/unsupported URL/');
         Config::pools('www=fpm:9000/status');
     }
+
+    public function testTlsVerificationCanBeDisabled(): void
+    {
+        self::assertTrue(Config::fromEnv([])->verifyTls);
+        self::assertFalse(Config::fromEnv(['SCRAPE_INSECURE_SKIP_VERIFY' => 'true'])->verifyTls);
+    }
 }

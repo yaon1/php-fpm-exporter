@@ -11,9 +11,9 @@ final readonly class SchemeFetcher implements Fetcher
     {
     }
 
-    public static function create(float $timeout): self
+    public static function create(float $timeout, bool $verifyTls = true): self
     {
-        return new self(new HttpFetcher($timeout), new FastCgiFetcher($timeout));
+        return new self(new HttpFetcher($timeout, $verifyTls), new FastCgiFetcher($timeout));
     }
 
     public function fetch(string $url): string
