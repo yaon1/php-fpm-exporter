@@ -90,4 +90,14 @@ final class ClientTest extends TestCase
         $this->expectExceptionMessageMatches('/Cannot connect/');
         (new Client('unix:///nonexistent.sock', 0.2))->request([]);
     }
+
+    public function testFetcherReportsMissingScripts(): void
+    {
+        $this->client();
+        $fetcher = new \Yaon\FpmExporter\FastCgiFetcher();
+
+        self::assertStringContainsString('"pool":"www"', $fetcher->fetch('unix://' . self::$dir . '/fpm.sock;/status?json'));
+        $this->expectExceptionMessageMatches('/returned 404/');
+        $fetcher->fetch('unix://' . self::$dir . '/fpm.sock;' . self::$dir . '/missing.php');
+    }
 }
