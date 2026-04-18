@@ -67,4 +67,21 @@ final class ExporterTest extends TestCase
         self::assertStringStartsWith('application/openmetrics-text', $response->headers['Content-Type']);
         self::assertStringEndsWith("# EOF\n", $response->body);
     }
+
+    public function testProbeScrapesTheRequestedTarget(): void
+    {
+        $response = $this->exporter([])->handle('/probe', [], ['target' => 'tcp://10.0.0.5:9000/status']);
+
+        self::assertSame(200, $response->status);
+        self::assertStringContainsString('phpfpm_up{pool="probe"} 1', $response->body);
+        self::assertSame(400, $this->exporter([])->handle('/probe', [], ['target' => 'file:///etc/passwd'])->status);
+    }
+
+    public function testProbeHonoursAllowList(): void
+    {
+        $exporter = $this->exporter(['PROBE_ALLOWED_HOSTS' => '10.0.0.5, app']);
+
+        self::assertSame(200, $exporter->handle('/probe', [], ['target' => 'tcp://app:9000/status'])->status);
+        self::assertSame(403, $exporter->handle('/probe', [], ['target' => 'tcp://evil:9000/status'])->status);
+    }
 }
