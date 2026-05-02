@@ -1,0 +1,21 @@
+# Prometheus scrape config for /probe mode: one central exporter, pods found via
+# Kubernetes service discovery. Annotate PHP pods with `php-fpm-exporter/probe: "true"`.
+scrape_configs:
+  - job_name: php-fpm-probe
+    metrics_path: /probe
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_php_fpm_exporter_probe]
+        regex: 'true'
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        regex: (.+)
+        target_label: __param_target
+        replacement: tcp://$1:9000/status
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - target_label: __address__
+        replacement: php-fpm-exporter.monitoring.svc:9253
