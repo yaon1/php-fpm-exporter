@@ -19,9 +19,7 @@ final class FpmCollectorTest extends TestCase
             public array $requested = [];
 
             /** @param array<string, string> $responses */
-            public function __construct(private array $responses)
-            {
-            }
+            public function __construct(private array $responses) {}
 
             public function fetch(string $url): string
             {
@@ -78,21 +76,21 @@ final class FpmCollectorTest extends TestCase
     {
         $metrics = $this->fixtureMetrics();
 
-        self::assertSame(1, $metrics["phpfpm_info{\"pool\":\"www\",\"process_manager\":\"dynamic\"}"]);
+        self::assertSame(1, $metrics['phpfpm_info{"pool":"www","process_manager":"dynamic"}']);
     }
 
     public function testExposesStartTime(): void
     {
         $metrics = $this->fixtureMetrics();
 
-        self::assertSame(1760000000, $metrics["phpfpm_start_time_seconds{\"pool\":\"www\"}"]);
+        self::assertSame(1760000000, $metrics['phpfpm_start_time_seconds{"pool":"www"}']);
     }
 
     public function testExposesPeakCpu(): void
     {
         $metrics = $this->fixtureMetrics();
 
-        self::assertSame(0.875, $metrics["phpfpm_process_max_last_request_cpu_ratio{\"pool\":\"www\"}"]);
+        self::assertSame(0.875, $metrics['phpfpm_process_max_last_request_cpu_ratio{"pool":"www"}']);
     }
 
     public function testLogsScrapeErrors(): void

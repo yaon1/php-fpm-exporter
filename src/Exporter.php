@@ -13,8 +13,7 @@ final readonly class Exporter
         private Fetcher $fetcher,
         private ?\Closure $log = null,
         private ?FileCache $cache = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @param array<string, string> $headers lower-cased request headers
@@ -82,7 +81,7 @@ final readonly class Exporter
     private function metrics(bool $openMetrics): HttpResponse
     {
         $contentType = self::contentType($openMetrics);
-        $render = fn (): string => $this->render($openMetrics);
+        $render = fn(): string => $this->render($openMetrics);
         $body = $this->cache === null ? $render() : $this->cache->remember(($openMetrics ? 'om:' : 'prom:') . serialize($this->config), $this->config->cacheTtl, $render);
 
         return new HttpResponse(200, $body, ['Content-Type' => $contentType]);

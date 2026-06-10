@@ -17,9 +17,7 @@ use Yaon\FpmExporter\FastCgi\Client;
 final readonly class FastCgiFetcher implements Fetcher
 {
     /** @param \Closure(string, float): Client|null $clientFactory */
-    public function __construct(private float $timeout = 2.0, private ?\Closure $clientFactory = null)
-    {
-    }
+    public function __construct(private float $timeout = 2.0, private ?\Closure $clientFactory = null) {}
 
     /** @return array{string, string, string} [socket address, script path, query string] */
     public static function parse(string $url): array

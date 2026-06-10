@@ -10,9 +10,7 @@ final readonly class Client
     private const REQUEST_ID = 1;
 
     /** @param string $address "tcp://host:port" or "unix:///path/to.sock" */
-    public function __construct(private string $address, private float $timeout = 2.0)
-    {
-    }
+    public function __construct(private string $address, private float $timeout = 2.0) {}
 
     /** @param array<string, string> $params CGI environment, e.g. SCRIPT_FILENAME and QUERY_STRING */
     public function request(array $params, string $stdin = ''): Response

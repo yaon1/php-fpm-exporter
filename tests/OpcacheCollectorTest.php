@@ -13,9 +13,7 @@ final class OpcacheCollectorTest extends TestCase
     private function collect(string $body): string
     {
         $fetcher = new class ($body) implements Fetcher {
-            public function __construct(private string $body)
-            {
-            }
+            public function __construct(private string $body) {}
 
             public function fetch(string $url): string
             {

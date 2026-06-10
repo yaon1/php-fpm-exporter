@@ -30,7 +30,7 @@ try {
     exit(2);
 }
 
-$log = static fn (string $m) => fwrite(STDERR, $m . "\n");
+$log = static fn(string $m) => fwrite(STDERR, $m . "\n");
 $body = (new Exporter($config, SchemeFetcher::create($config->timeout, $config->verifyTls), $log))->handle('/metrics')->body;
 
 $target = $options['textfile'] ?? null;

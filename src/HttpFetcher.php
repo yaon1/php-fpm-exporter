@@ -7,9 +7,7 @@ namespace Yaon\FpmExporter;
 final readonly class HttpFetcher implements Fetcher
 {
     /** @param bool $verifyTls false allows self-signed certificates on internal status endpoints */
-    public function __construct(private float $timeout = 2.0, private bool $verifyTls = true)
-    {
-    }
+    public function __construct(private float $timeout = 2.0, private bool $verifyTls = true) {}
 
     public function fetch(string $url): string
     {

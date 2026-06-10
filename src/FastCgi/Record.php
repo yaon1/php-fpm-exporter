@@ -50,7 +50,7 @@ final class Record
             throw new \UnexpectedValueException('FastCGI header must be 8 bytes');
         }
         $h = unpack('Cversion/Ctype/nrequestId/ncontentLength/CpaddingLength', $header);
-        $int = static fn (string $key): int => is_array($h) && is_int($h[$key] ?? null) ? $h[$key] : -1;
+        $int = static fn(string $key): int => is_array($h) && is_int($h[$key] ?? null) ? $h[$key] : -1;
         if ($int('version') !== self::VERSION) {
             throw new \UnexpectedValueException('Unsupported FastCGI version');
         }

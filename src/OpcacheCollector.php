@@ -8,9 +8,7 @@ namespace Yaon\FpmExporter;
 final readonly class OpcacheCollector
 {
     /** @param array<string, string> $pools pool label => agent URL */
-    public function __construct(private Fetcher $fetcher, private array $pools)
-    {
-    }
+    public function __construct(private Fetcher $fetcher, private array $pools) {}
 
     /** @return \Generator<Metric> */
     public function collect(): \Generator

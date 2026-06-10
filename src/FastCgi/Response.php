@@ -7,9 +7,7 @@ namespace Yaon\FpmExporter\FastCgi;
 final readonly class Response
 {
     /** @param array<string, string> $headers lower-cased names */
-    public function __construct(public int $status, public array $headers, public string $body, public string $stderr = '')
-    {
-    }
+    public function __construct(public int $status, public array $headers, public string $body, public string $stderr = '') {}
 
     /** Splits CGI output ("Header: v\r\n...\r\n\r\nbody") into status, headers and body. */
     public static function fromCgiOutput(string $stdout, string $stderr = ''): self

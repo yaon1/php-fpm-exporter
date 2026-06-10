@@ -28,9 +28,7 @@ final readonly class FpmCollector
      * @param array<string, string> $pools pool label => status URL
      * @param (\Closure(string): void)|null $log receives scrape errors, e.g. for stderr
      */
-    public function __construct(private Fetcher $fetcher, private array $pools, private ?\Closure $log = null)
-    {
-    }
+    public function __construct(private Fetcher $fetcher, private array $pools, private ?\Closure $log = null) {}
 
     /** @return \Generator<Metric> */
     public function collect(): \Generator

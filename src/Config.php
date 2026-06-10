@@ -21,8 +21,7 @@ final readonly class Config
         public bool $verifyTls = true,
         /** @var list<string> hosts /probe may contact; empty allows any */
         public array $probeAllowedHosts = [],
-    ) {
-    }
+    ) {}
 
     /** @param array<string, string> $env */
     public static function fromEnv(array $env): self
@@ -34,7 +33,7 @@ final readonly class Config
             ($env['METRICS_BASIC_AUTH'] ?? '') === '' ? null : $env['METRICS_BASIC_AUTH'],
             (float) ($env['SCRAPE_CACHE_TTL'] ?? 0),
             !filter_var($env['SCRAPE_INSECURE_SKIP_VERIFY'] ?? false, FILTER_VALIDATE_BOOL),
-            array_values(array_filter(array_map(static fn (string $h) => strtolower(trim($h)), explode(',', $env['PROBE_ALLOWED_HOSTS'] ?? '')))),
+            array_values(array_filter(array_map(static fn(string $h) => strtolower(trim($h)), explode(',', $env['PROBE_ALLOWED_HOSTS'] ?? '')))),
         );
     }
 

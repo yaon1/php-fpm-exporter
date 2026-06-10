@@ -12,9 +12,7 @@ namespace Yaon\FpmExporter;
 final readonly class FileCache
 {
     /** @param \Closure(): float|null $clock */
-    public function __construct(private string $directory, private ?\Closure $clock = null)
-    {
-    }
+    public function __construct(private string $directory, private ?\Closure $clock = null) {}
 
     /**
      * @param \Closure(): string $compute

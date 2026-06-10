@@ -7,9 +7,7 @@ namespace Yaon\FpmExporter;
 /** Picks HTTP or FastCGI transport by URL scheme, so both can be mixed in one config. */
 final readonly class SchemeFetcher implements Fetcher
 {
-    public function __construct(private Fetcher $http, private Fetcher $fastCgi)
-    {
-    }
+    public function __construct(private Fetcher $http, private Fetcher $fastCgi) {}
 
     public static function create(float $timeout, bool $verifyTls = true): self
     {
