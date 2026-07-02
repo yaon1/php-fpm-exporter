@@ -15,11 +15,16 @@ jobs:
         with:
           php-version: '8.4'
           coverage: none
+          tools: none
+      - name: Install php-fpm for integration tests
+        run: sudo apt-get update -q && sudo apt-get install -yq php8.4-fpm || true
       - run: composer validate --strict
       - run: composer install --no-progress --prefer-dist
       - run: vendor/bin/php-cs-fixer fix --dry-run --diff
       - run: vendor/bin/phpstan analyse --no-progress
       - run: vendor/bin/phpunit
+        env:
+          PHP_FPM_BINARY: /usr/sbin/php-fpm8.4
 
   alerts:
     runs-on: ubuntu-latest
