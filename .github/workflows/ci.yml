@@ -35,8 +35,19 @@ jobs:
           docker run --rm -v "$PWD/alerts:/a" -w /a --entrypoint promtool prom/prometheus:v2.55.1 check rules php-fpm.rules.yml
           docker run --rm -v "$PWD/alerts:/a" -w /a --entrypoint promtool prom/prometheus:v2.55.1 test rules php-fpm.rules.test.yml
 
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t exporter .
+      - name: Container answers /healthz and /metrics
+        run: |
+          docker run -d --name exporter -p 9253:9253 -e FPM_STATUS_URLS=www=tcp://127.0.0.1:1/status exporter
+          for i in $(seq 20); do curl -fs localhost:9253/healthz && break; sleep 1; done
+          curl -fs localhost:9253/metrics | grep 'phpfpm_up{pool="www"} 0'
+
   image:
-    needs: test
+    needs: [test, smoke]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
