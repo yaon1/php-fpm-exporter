@@ -58,6 +58,10 @@ docker run -p 9253:9253 \
 | `FPM_STATUS_URLS` | — | Пары `label=url` через запятую; адрес без метки получает `default` |
 | `OPCACHE_STATUS_URLS` | — | Тот же формат, адреса `opcache-status.php` |
 | `SCRAPE_TIMEOUT` | `2` | Таймаут одного запроса, секунды |
+| `SCRAPE_CACHE_TTL` | `0` | Сколько секунд переиспользовать результат опроса; защищает FPM, когда его опрашивают несколько реплик Prometheus |
+| `METRICS_BASIC_AUTH` | — | `user:password`, после этого `/metrics` и `/probe` требуют Basic Auth |
+| `SCRAPE_INSECURE_SKIP_VERIFY` | `false` | Не проверять TLS-сертификат для `https://` адресов |
+| `PROBE_ALLOWED_HOSTS` | — | Список хостов через запятую, которые разрешено опрашивать через `/probe` |
 
 ## Метрики
 
