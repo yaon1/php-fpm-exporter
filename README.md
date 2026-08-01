@@ -2,6 +2,7 @@
 
 **Prometheus-экспортер для PHP-FPM и OPcache с готовым дашбордом Grafana.** Помогает ответить на вопросы, которые обычно всплывают уже во время инцидента: хватает ли воркеров (`max_children reached`), растёт ли очередь запросов, какой запрос висит дольше всех, не переполнен ли OPcache и не перезапускается ли он по OOM.
 
+- **Ходит в FPM напрямую по FastCGI** (`tcp://` или `unix://`): nginx и открытый наружу status-путь не нужны.
 - Несколько пулов в одном экспортере, у каждого свой label `pool`.
 - Воркеры по состояниям, самый долгий текущий запрос, пиковая память запроса.
 - OPcache: память, hit/miss, перезапуски по причинам, interned strings.
@@ -42,7 +43,15 @@ docker run -p 9253:9253 \
 
 1. Включите страницу статуса в конфиге пула: `pm.status_path = /status`.
 2. *(Для OPcache)* положите [`agent/opcache-status.php`](agent/opcache-status.php) в docroot пула. OPcache живёт внутри воркеров FPM, поэтому читать его нужно оттуда.
-3. Откройте оба адреса только для экспортера (см. [`demo/nginx.conf`](demo/nginx.conf)).
+3. Укажите адреса в одном из форматов:
+
+| Транспорт | Пример URL |
+|---|---|
+| FastCGI по TCP | `tcp://app:9000/status` |
+| FastCGI по unix-сокету | `unix:///run/php/php-fpm.sock;/status` |
+| HTTP через веб-сервер | `http://nginx/status` (см. [`demo/nginx.conf`](demo/nginx.conf)) |
+
+Для OPcache по FastCGI путь — абсолютный путь к файлу внутри контейнера FPM: `tcp://app:9000/var/www/html/opcache-status.php`.
 
 | Переменная | По умолчанию | |
 |---|---|---|
