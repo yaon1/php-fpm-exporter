@@ -63,6 +63,16 @@ docker run -p 9253:9253 \
 | `SCRAPE_INSECURE_SKIP_VERIFY` | `false` | Не проверять TLS-сертификат для `https://` адресов |
 | `PROBE_ALLOWED_HOSTS` | — | Список хостов через запятую, которые разрешено опрашивать через `/probe` |
 
+## Режим /probe: один экспортер на весь кластер
+
+Как у blackbox_exporter: адрес FPM приходит в параметре запроса, поэтому один экспортер может опрашивать все поды, найденные через service discovery, без сайдкаров.
+
+```bash
+curl 'http://exporter:9253/probe?target=tcp://10.0.3.17:9000/status'
+```
+
+Готовый `scrape_config` для Kubernetes лежит в [`deploy/kubernetes/probe-scrape-config.yaml`](deploy/kubernetes/probe-scrape-config.yaml). Ограничьте круг целей переменной `PROBE_ALLOWED_HOSTS`.
+
 ## Метрики
 
 | Метрика | Тип | Labels |
