@@ -73,6 +73,15 @@ curl 'http://exporter:9253/probe?target=tcp://10.0.3.17:9000/status'
 
 Готовый `scrape_config` для Kubernetes лежит в [`deploy/kubernetes/probe-scrape-config.yaml`](deploy/kubernetes/probe-scrape-config.yaml). Ограничьте круг целей переменной `PROBE_ALLOWED_HOSTS`.
 
+## Без HTTP-сервера: textfile для node_exporter
+
+```bash
+FPM_STATUS_URLS='www=unix:///run/php/php-fpm.sock;/status' \
+  bin/php-fpm-exporter --textfile=/var/lib/node_exporter/textfile/php_fpm.prom
+```
+
+Файл записывается атомарно. Готовые unit-файлы systemd (сервис и таймер) лежат в [`deploy/systemd`](deploy/systemd).
+
 ## Метрики
 
 | Метрика | Тип | Labels |
