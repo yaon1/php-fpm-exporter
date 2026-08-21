@@ -82,6 +82,16 @@ FPM_STATUS_URLS='www=unix:///run/php/php-fpm.sock;/status' \
 
 Файл записывается атомарно. Готовые unit-файлы systemd (сервис и таймер) лежат в [`deploy/systemd`](deploy/systemd).
 
+## Kubernetes
+
+Сайдкар в том же поде, FPM доступен по `127.0.0.1:9000`, наружу ничего не открывается:
+
+```bash
+kubectl apply -k deploy/kubernetes
+```
+
+В комплекте: `Deployment` с сайдкаром, `Service`, `ServiceMonitor` и `PrometheusRule` для Prometheus Operator.
+
 ## Метрики
 
 | Метрика | Тип | Labels |
