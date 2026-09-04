@@ -92,16 +92,27 @@ kubectl apply -k deploy/kubernetes
 | Метрика | Тип | Labels |
 |---|---|---|
 | `phpfpm_up` | gauge | pool |
+| `phpfpm_info` | gauge | pool, process_manager |
+| `phpfpm_start_time_seconds`, `phpfpm_scrape_duration_seconds` | gauge | pool |
 | `phpfpm_{idle,active,total,max_active}_processes` | gauge | pool |
 | `phpfpm_listen_queue`, `phpfpm_max_listen_queue`, `phpfpm_listen_queue_length` | gauge | pool |
 | `phpfpm_accepted_connections_total`, `phpfpm_max_children_reached_total`, `phpfpm_slow_requests_total` | counter | pool |
 | `phpfpm_process_state` | gauge | pool, state |
-| `phpfpm_process_max_request_duration_seconds`, `phpfpm_process_max_request_memory_bytes` | gauge | pool |
+| `phpfpm_process_max_request_duration_seconds`, `phpfpm_process_avg_running_request_duration_seconds` | gauge | pool |
+| `phpfpm_process_max_request_memory_bytes`, `phpfpm_process_max_last_request_cpu_ratio` | gauge | pool |
 | `opcache_enabled`, `opcache_cache_full`, `opcache_cached_scripts` | gauge | pool |
 | `opcache_memory_bytes` | gauge | pool, kind (used/free/wasted) |
 | `opcache_hits_total`, `opcache_misses_total` | counter | pool |
 | `opcache_restarts_total` | counter | pool, reason (oom/hash/manual) |
 | `opcache_interned_strings_{used,buffer}_bytes` | gauge | pool |
+| `opcache_hit_ratio`, `opcache_cached_keys`, `opcache_max_cached_keys` | gauge | pool |
+| `opcache_blacklist_misses_total` | counter | pool |
+| `opcache_start_time_seconds`, `opcache_last_restart_time_seconds` | gauge | pool |
+| `opcache_jit_enabled`, `opcache_jit_buffer_bytes`, `opcache_jit_buffer_free_bytes` | gauge | pool |
+| `opcache_preload_memory_bytes`, `opcache_preload_scripts` | gauge | pool |
+| `phpfpm_exporter_build_info`, `phpfpm_exporter_scrape_duration_seconds` | gauge | version, php_version |
+
+Если Prometheus запрашивает `application/openmetrics-text`, ответ отдаётся в формате OpenMetrics 1.0.
 
 ## Разработка
 
