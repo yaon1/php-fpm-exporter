@@ -30,15 +30,6 @@ docker run -p 9253:9253 \
   ghcr.io/yaon1/php-fpm-exporter
 ```
 
-Примеры алертов:
-
-```yaml
-- alert: PhpFpmMaxChildrenReached
-  expr: increase(phpfpm_max_children_reached_total[10m]) > 0
-- alert: OpcacheFull
-  expr: opcache_cache_full == 1
-```
-
 ## Настройка
 
 1. Включите страницу статуса в конфиге пула: `pm.status_path = /status`.
@@ -91,6 +82,10 @@ kubectl apply -k deploy/kubernetes
 ```
 
 В комплекте: `Deployment` с сайдкаром, `Service`, `ServiceMonitor` и `PrometheusRule` для Prometheus Operator.
+
+## Алерты
+
+[`alerts/php-fpm.rules.yml`](alerts/php-fpm.rules.yml): пул не отвечает, упёрлись в `pm.max_children`, очередь запросов, медленные запросы, переполнение памяти и хеш-таблицы OPcache, перезапуски по OOM. Правила покрыты тестами `promtool` (`make alerts`).
 
 ## Метрики
 
