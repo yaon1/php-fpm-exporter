@@ -114,6 +114,15 @@ kubectl apply -k deploy/kubernetes
 
 Если Prometheus запрашивает `application/openmetrics-text`, ответ отдаётся в формате OpenMetrics 1.0.
 
+## Если что-то не так
+
+| Симптом | Причина |
+|---|---|
+| `phpfpm_up 0`, в логе `Connection refused` | FPM слушает другой адрес; проверьте `listen` в конфиге пула |
+| `returned 404: File not found` | Не задан `pm.status_path` или путь в URL не совпадает с ним |
+| `opcache_enabled 0` | Агент вызван из CLI, а не из FPM, или OPcache выключен в этом пуле |
+| `403 Forbidden` от агента | Запрос пришёл с публичного IP; опрашивайте по FastCGI или из внутренней сети |
+
 ## Разработка
 
 ```bash
