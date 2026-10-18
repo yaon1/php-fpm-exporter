@@ -2,7 +2,7 @@
 
 Формат: [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/), версии по [SemVer](https://semver.org/lang/ru/).
 
-## [Unreleased] — 0.2.0
+## [0.2.0] — 2026-10-19
 
 ### Добавлено
 - Опрос FPM напрямую по FastCGI (`tcp://`, `unix://`), без веб-сервера.
