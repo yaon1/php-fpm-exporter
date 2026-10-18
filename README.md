@@ -54,6 +54,10 @@ docker run -p 9253:9253 \
 | `SCRAPE_INSECURE_SKIP_VERIFY` | `false` | Не проверять TLS-сертификат для `https://` адресов |
 | `PROBE_ALLOWED_HOSTS` | — | Список хостов через запятую, которые разрешено опрашивать через `/probe` |
 
+## Дашборд Grafana
+
+[`demo/grafana/dashboards/php-fpm.json`](demo/grafana/dashboards/php-fpm.json): Dashboards → New → Import → загрузить файл, выбрать источник Prometheus. 15 панелей: воркеры, очередь, возраст запросов, CPU, slow requests, память, ключи, JIT и перезапуски OPcache, длительность опроса. Есть фильтр по пулу.
+
 ## Режим /probe: один экспортер на весь кластер
 
 Как у blackbox_exporter: адрес FPM приходит в параметре запроса, поэтому один экспортер может опрашивать все поды, найденные через service discovery, без сайдкаров.
